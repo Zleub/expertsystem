@@ -6,7 +6,7 @@
 -- /ddddy:oddddddddds:sddddd/ By adebray - adebray
 -- sdddddddddddddddddddddddds
 -- sdddddddddddddddddddddddds Created: 2015-08-20 01:17:11
--- :ddddddddddhyyddddddddddd: Modified: 2015-08-20 22:43:07
+-- :ddddddddddhyyddddddddddd: Modified: 2015-08-20 23:02:47
 --  odddddddd/`:-`sdddddddds
 --   +ddddddh`+dh +dddddddo
 --    -sdddddh///sdddddds-
@@ -14,6 +14,22 @@
 --          .-::::-`
 
 local gmr = {}
+
+function prepare_match(v)
+	v:gsub("%(", "%%(")
+	v:gsub("%)", "%%)")
+	v:gsub("%.", "%%.")
+	v:gsub("%%", "%%%")
+	v:gsub("%+", "%%+")
+	v:gsub("%-", "%%-")
+	v:gsub("%*", "%%*")
+	v:gsub("%?", "%%?")
+	v:gsub("%[", "%%[")
+	v:gsub("%^", "%%^")
+	v:gsub("%$", "%%$")
+
+	return v
+end
 
 function gmr:open(gmrFile)
 	self.file = io.open(gmrFile)
@@ -24,13 +40,13 @@ function gmr:open(gmrFile)
 end
 
 function gmr:levelup(bool)
-	print('levelup', bool)
+	-- print('levelup', bool)
 	self.level = self.level + 1
 	return bool
 end
 
 function gmr:leveldown(bool)
-	print('leveldown', bool)
+	-- print('leveldown', bool)
 	self.level = self.level - 1
 	return bool
 end
@@ -74,7 +90,8 @@ function gmr:addrule(line)
 					print(leveled.."m_"..m..c..normaled)
 					local res = self.rules[m](line)
 
-					if not res and rule.content[i + 1] == "|" then -- next
+					if not res and
+						(rule.content[i + 1] == "|" or c == '?') then -- next
 					elseif not res then return self:leveldown(false) end
 					if res and rule.content[i + 1] == "|" then return self:leveldown(res) end
 					if res then line = res end
@@ -107,6 +124,11 @@ function gmr:addrule(line)
 				elseif v == "|" then
 					;
 				else
+					if v:find("'") then
+						v = prepare_match(v)
+						v = v:sub(2, #v - 1)
+					end
+
 					print(leveled.."v_"..v..normaled)
 
 					if line:match('^'..v) then
