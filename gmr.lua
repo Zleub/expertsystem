@@ -6,7 +6,7 @@
 -- /ddddy:oddddddddds:sddddd/ By adebray - adebray
 -- sdddddddddddddddddddddddds
 -- sdddddddddddddddddddddddds Created: 2015-08-20 01:17:11
--- :ddddddddddhyyddddddddddd: Modified: 2015-08-20 06:42:36
+-- :ddddddddddhyyddddddddddd: Modified: 2015-08-20 09:49:03
 --  odddddddd/`:-`sdddddddds
 --   +ddddddh`+dh +dddddddo
 --    -sdddddh///sdddddds-
@@ -50,7 +50,7 @@ function gmr:addrule(line)
 
 		self.level = 0
 		self.rules[rule.name] = function (line)
-			self.level = self.level + 1
+			self:levelup(self.level)
 
 			local normaled = string.char(27)..'[0m'
 			local underlined = string.char(27)..'[4m'
@@ -61,8 +61,11 @@ function gmr:addrule(line)
 			print("call: "..underlined.. rule.name..normaled, greyed..line..normaled)
 			debug(rule.content, line)
 			for i,v in ipairs(rule.content) do
+				print('-- '..v)
 				local m, c = v:match('^([A-Z]+)([%?%+%*]?)$') -- relaunch rule
-				local g = v:match('^%[[A-Z]+$') -- match rule grouping begin
+				local g = v:match('^%[([A-Z]+)$') -- match rule grouping begin
+				local e, gc = v:match('^([A-Z]+)%]([%?%+%*]?)$') -- match rule grouping end
+
 
 				if m then
 					print(leveled.."m_"..m..c..normaled)
@@ -70,15 +73,32 @@ function gmr:addrule(line)
 
 					if not res and rule.content[i + 1] == "|" then -- next
 					elseif not res then return self:leveldown(false) end
-					if res and rule.content[i + 1] == "|" then return self:leveldown(false) end
+					if res and rule.content[i + 1] == "|" then return self:leveldown(res) end
+					if res then line = res end
 				elseif g then
 					print(leveled.."g_"..v..normaled)
+					local res = self.rules[g](line)
+
+					if not res and rule.content[i + 1] == "|" then -- next
+					elseif not res then return self:leveldown(false) end
+					if res and rule.content[i + 1] == "|" then return self:leveldown(res) end
+					if res then line = res end
+
+				elseif e then
+					print(leveled.."e_"..v..normaled)
+					local res = self.rules[e](line)
+
+					if not res and rule.content[i + 1] == "|" then -- next
+					elseif not res then return self:leveldown(false) end
+					if res and rule.content[i + 1] == "|" then return self:leveldown(res) end
+					if res then line = res end
 				elseif v == "|" then
 					;
 				else
 					print(leveled.."v_"..v..normaled)
 					if line:match('^'..v) then
-						return self:leveldown(true)
+						line = line:match('^'..v..'%s*(.+)')
+						return self:leveldown(line)
 					else
 						return self:leveldown(false)
 					end
@@ -108,13 +128,7 @@ function gmr:parse()
 end
 
 function gmr:resolve(line)
-	-- print('resolve:', line)
-
 	self.rules['MAIN'](line)
-
-	-- for content in self.rules['MAIN'] do
-	-- 	print(content)
-	-- end
 end
 
 return gmr
