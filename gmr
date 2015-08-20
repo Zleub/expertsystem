@@ -7,5 +7,6 @@ OPERATOR	:= IMPLIES | ADD
 
 IMPLIES		:= =>
 ADD			:= +
+OR			:= |
 
 COMMENT		:= #.+

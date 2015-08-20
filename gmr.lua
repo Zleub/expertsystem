@@ -6,7 +6,7 @@
 -- /ddddy:oddddddddds:sddddd/ By adebray - adebray
 -- sdddddddddddddddddddddddds
 -- sdddddddddddddddddddddddds Created: 2015-08-20 01:17:11
--- :ddddddddddhyyddddddddddd: Modified: 2015-08-20 09:49:03
+-- :ddddddddddhyyddddddddddd: Modified: 2015-08-20 22:43:07
 --  odddddddd/`:-`sdddddddds
 --   +ddddddh`+dh +dddddddo
 --    -sdddddh///sdddddds-
@@ -60,8 +60,11 @@ function gmr:addrule(line)
 
 			print("call: "..underlined.. rule.name..normaled, greyed..line..normaled)
 			debug(rule.content, line)
-			for i,v in ipairs(rule.content) do
-				print('-- '..v)
+			-- for i,v in ipairs(rule.content) do
+			local i = 1
+			while i ~= #rule.content + 1 do
+				local v = rule.content[i]
+
 				local m, c = v:match('^([A-Z]+)([%?%+%*]?)$') -- relaunch rule
 				local g = v:match('^%[([A-Z]+)$') -- match rule grouping begin
 				local e, gc = v:match('^([A-Z]+)%]([%?%+%*]?)$') -- match rule grouping end
@@ -75,6 +78,7 @@ function gmr:addrule(line)
 					elseif not res then return self:leveldown(false) end
 					if res and rule.content[i + 1] == "|" then return self:leveldown(res) end
 					if res then line = res end
+
 				elseif g then
 					print(leveled.."g_"..v..normaled)
 					local res = self.rules[g](line)
@@ -85,17 +89,26 @@ function gmr:addrule(line)
 					if res then line = res end
 
 				elseif e then
-					print(leveled.."e_"..v..normaled)
+					print(leveled.."e_"..e.." -- "..gc..normaled)
 					local res = self.rules[e](line)
 
 					if not res and rule.content[i + 1] == "|" then -- next
 					elseif not res then return self:leveldown(false) end
-					if res and rule.content[i + 1] == "|" then return self:leveldown(res) end
-					if res then line = res end
+					if res and rule.content[i + 1] == "|" then return self:leveldown(false) end
+					if res then
+						line = res
+
+						for j=i, 1, -1 do
+							if rule.content[j]:match('^%[([A-Z]+)$') then
+								i = j - 1
+							end
+						end
+					end
 				elseif v == "|" then
 					;
 				else
 					print(leveled.."v_"..v..normaled)
+
 					if line:match('^'..v) then
 						line = line:match('^'..v..'%s*(.+)')
 						return self:leveldown(line)
@@ -104,10 +117,10 @@ function gmr:addrule(line)
 					end
 				end
 
-
+				i = i + 1
 			end
 
-			return self:leveldown(false)
+			return self:leveldown(line)
 		end
 	end
 end
