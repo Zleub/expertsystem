@@ -6,7 +6,7 @@
 -- /ddddy:oddddddddds:sddddd/ By adebray - adebray
 -- sdddddddddddddddddddddddds
 -- sdddddddddddddddddddddddds Created: 2015-08-20 00:37:49
--- :ddddddddddhyyddddddddddd: Modified: 2015-08-20 01:46:14
+-- :ddddddddddhyyddddddddddd: Modified: 2015-08-21 01:05:34
 --  odddddddd/`:-`sdddddddds
 --   +ddddddh`+dh +dddddddo
 --    -sdddddh///sdddddds-
@@ -28,7 +28,9 @@ else
 	end
 
 	for line in file:lines() do
-		gmr:resolve(line)
+		if not gmr:resolve(line) then
+			print('parse error: ', line)
+		end
 	end
 end
 

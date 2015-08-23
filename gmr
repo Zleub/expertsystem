@@ -1,12 +1,12 @@
 MAIN		:= COMMENT | EXPR
 
-EXPR		:= SYMBOL [OPERATOR SYMBOL]+ COMMENT?
+EXPR		:= SYMBOL [OPERATOR SYMBOL]+
 SYMBOL		:= NOT? [A-Z]
 
 OPERATOR	:= IMPLIES | IFONLY | ADD | OR | XOR
 
 IFONLY		:= '<=>'
-IMPLIES		:= '=>'
+IMPLIES		:= '=>' | 'implies'
 ADD			:= '+'
 OR			:= '|'
 XOR			:= '^'
