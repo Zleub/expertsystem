@@ -1,13 +1,16 @@
-MAIN		:= COMMENT | EXPR
+MAIN		:= COMMENT | EXPR | FACTS
+
+FACTS		:= '=' FACT+
+FACT		:= [A-Z]
 
 EXPR		:= SYMBOL [OPERATOR SYMBOL]+
 SYMBOL		:= NOT? [A-Z]
 
-OPERATOR	:= IMPLIES | IFONLY | ADD | OR | XOR
+OPERATOR	:= IMPLIES | IFONLY | AND | OR | XOR
 
 IFONLY		:= '<=>'
 IMPLIES		:= '=>' | 'implies'
-ADD			:= '+'
+AND			:= '+'
 OR			:= '|'
 XOR			:= '^'
 NOT			:= '!'

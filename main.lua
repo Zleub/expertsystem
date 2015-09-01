@@ -30,7 +30,8 @@ else
 	for line in file:lines() do
 		if not gmr:resolve(line) then
 			print('parse error: ', line)
+		else
+			-- build tree
 		end
 	end
 end
-

@@ -2,8 +2,17 @@
 local conditions = {};
 
 conditions[1] = {
-	content = "+",
-	left = "C",
+	content = "=>",
+	left = "A",
+	right = "C"
+}
+conditions[2] = {
+	content = "=>",
+	left = {
+		content = "+",
+		left = "A",
+		right = "B"
+	},
 	right = "D"
 }
 
@@ -108,4 +117,3 @@ print("\nResult:", result, "\n")
 if result then
 	debug()
 end
-
