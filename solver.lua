@@ -26,27 +26,28 @@
 
 -- ((A v B) & (A & C) v D ) & (C)
 
-local tree = {
-	operator = "+",
-	left = {
-		operator = "|",
-		left = {
-			operator = "+",
-			left = {
-				operator = "|",
-				left = "A",
-				right = "B"
-			},
-			right = {
-				operator = "+",
-				left = "A",
-				right = "C"
-			}
-		},
-		right = "D"
-	},
-	right = "C"
-}
+-- local tree = {
+-- 	operator = "+",
+-- 	left = {
+-- 		operator = "|",
+-- 		left = {
+-- 			operator = "+",
+-- 			left = {
+-- 				operator = "|",
+-- 				left = "A",
+-- 				right = "B"
+-- 			},
+-- 			right = {
+-- 				operator = "+",
+-- 				left = "A",
+-- 				right = "C"
+-- 			}
+-- 		},
+-- 		right = "D"
+-- 	},
+-- 	right = "C"
+-- }
+
 local variables = { "A", "B", "C", "D" }
 
 local constrains = {}

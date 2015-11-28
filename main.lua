@@ -13,6 +13,7 @@
 --      .+ydddddddddhs/.
 --          .-::::-`
 
+gmr = require 'gmr'
 inspect = require 'inspect'
 
 function debug(...) print(inspect({...})) end
@@ -20,18 +21,6 @@ function debug(...) print(inspect({...})) end
 if not arg[1] then
 	print('Provide file plz')
 else
-	local gmr = require('gmr'):open('gmr'):parse()
-	local file = io.open(arg[1])
-	if not file then
-		print('Provide VALID file plz')
-		return
-	end
-
-	for line in file:lines() do
-		if not gmr:resolve(line) then
-			print('parse error: ', line)
-		else
-			-- build tree
-		end
-	end
+	tree = gmr(arg[1])
+	dofile('solver.lua')
 end
