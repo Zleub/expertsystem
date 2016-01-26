@@ -1,5 +1,5 @@
-return function (filename)
-	
+function do_file(self, filename)
+
 	local file = io.open(filename)
 	if not file then
 		print('Provide VALID file plz')
@@ -7,29 +7,13 @@ return function (filename)
 	end
 
 	for line in file:lines() do
-		-- scrap_comment
+	   print(line)
 	end
 
-	return {
-		operator = "+",
-		left = {
-			operator = "|",
-			left = {
-				operator = "+",
-				left = {
-					operator = "|",
-					left = "A",
-					right = "B"
-				},
-				right = {
-					operator = "+",
-					left = "A",
-					right = "C"
-				}
-			},
-			right = "D"
-		},
-		right = "C"
-	}
-
 end
+
+local obj = {}
+
+setmetatable(obj, { __call = do_file })
+
+return obj
