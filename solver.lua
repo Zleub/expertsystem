@@ -26,6 +26,12 @@
 
 -- ((A v B) & (A & C) v D ) & (C)
 
+local tree = {
+	operator = "=>",
+	left = 'A',
+	right = 'B'
+}
+
 -- local tree = {
 -- 	operator = "+",
 -- 	left = {
@@ -48,7 +54,7 @@
 -- 	right = "C"
 -- }
 
-local variables = { "A", "B", "C", "D" }
+local variables = { "A", "B" }
 
 local constrains = {}
 local values = {}
