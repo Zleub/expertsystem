@@ -103,24 +103,14 @@ if not arg[1] then
 else
 
 	local c, q
-	local tree_ref, trees, variables = nil, nil, {}
+	local trees, variables = {}, {}
 	for l in io.lines(arg[1]) do
 		local constrains = l:match('^%s*=(%S*)%s*$')
 		local query = l:match('^%s*%?(%S*)%s*$')
 
 		if l ~= '' and not query and not constrains then
 			local tree = getTree(l, variables)
-			if tree then
-				local new = { operator='+' }
-				new.left = tree
-
-				if not trees then
-					trees = new
-				else
-					tree_ref.right = new
-				end
-				tree_ref = new
-			end
+			if tree then table.insert(trees, tree) end
 		elseif l ~= '' and constrains then
 			c = constrains
 		elseif l ~= '' and query then
@@ -128,13 +118,23 @@ else
 		end
 	end
 
+	local nested_trees
+	for i,v in ipairs(trees) do
+		if not nested_trees then
+			nested_trees = { operator = '+', left = v }
+		elseif i == #trees then
+			nested_trees = { operator = '+', left = v, right = nested_trees}
+		else
+			nested_trees.right = v
+		end
+	end
+
 	q_table = {}
-	for v in q:gmatch('([^%s])') do
+	for v in c:gmatch('([^%s])') do
 		q_table[v] = true
 	end
 
-	debug(trees)
-	debug(variables)
+	debug(nested_trees)
 
 	-- solve(trees[1], variables, q_table)
 end
