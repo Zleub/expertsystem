@@ -103,14 +103,24 @@ if not arg[1] then
 else
 
 	local c, q
-	local trees, variables = {}, {}
+	local tree_ref, trees, variables = nil, nil, {}
 	for l in io.lines(arg[1]) do
 		local constrains = l:match('^%s*=(%S*)%s*$')
 		local query = l:match('^%s*%?(%S*)%s*$')
 
 		if l ~= '' and not query and not constrains then
 			local tree = getTree(l, variables)
-			if tree then table.insert(trees, tree) end
+			if tree then
+				local new = { operator='+' }
+				new.left = tree
+
+				if not trees then
+					trees = new
+				else
+					tree_ref.right = new
+				end
+				tree_ref = new
+			end
 		elseif l ~= '' and constrains then
 			c = constrains
 		elseif l ~= '' and query then
