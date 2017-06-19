@@ -1,7 +1,8 @@
-A | B
-B | C
-D | C
+A => B
+A + B => C
+A + B | C => D
+A + B + C => D
+A + B => C + D
+=A
 
-=
-
-?A
+?B
