@@ -6,7 +6,7 @@
 //  sdddddddddddddddddddddddds   @Last modified by: adebray
 //  sdddddddddddddddddddddddds
 //  :ddddddddddhyyddddddddddd:   @Created: 2017-06-17T18:17:57+02:00
-//   odddddddd/`:-`sdddddddds    @Modified: 2017-06-28T22:05:23+02:00
+//   odddddddd/`:-`sdddddddds    @Modified: 2017-07-14T01:32:24+02:00
 //    +ddddddh`+dh +dddddddo
 //     -sdddddh///sdddddds-
 //       .+ydddddddddhs/.
@@ -73,6 +73,8 @@ let ops = [
 ]
 
 let split_operator = (e) => {
+	console.log(e)
+	console.log(e instanceof Array)
 	for (var i = 0; i < ops.length; i++) {
 		let op = ops[i]
 		let j = e.indexOf(op)
@@ -84,6 +86,14 @@ let split_operator = (e) => {
 				right: split_operator(e.substr(j + op.length).trim())
 			}
 		}
+	}
+	return e
+}
+
+let test = e => {
+	let m = e.match(/\((.+)\)/)
+	if (m) {
+		return [].concat.apply([], [e.replace(`(${m[1]})`, "ANO"), test(m[1])])
 	}
 	return e
 }
@@ -137,8 +147,10 @@ else {
 				r[1].match(/\w/g).forEach( e => queries.push(e))
 			return e
 		})
-		.map( e => split_operator(e) )
+		.map(test)
+		// rules.
 
+		rules = rules.map( e => split_operator(e) )
 
 		log(`Post parsed rules`)
 		rules.forEach(prettylog)
