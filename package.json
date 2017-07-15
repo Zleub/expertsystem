@@ -1,0 +1,25 @@
+{
+  "name": "expertsystem",
+  "version": "1.0.0",
+  "description": "An expertsystem",
+  "main": "main.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Zleub/expertsystem.git"
+  },
+  "author": "Zleub",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Zleub/expertsystem/issues"
+  },
+  "homepage": "https://github.com/Zleub/expertsystem#readme",
+  "dependencies": {
+    "colors": "^1.1.2"
+  }
+}
