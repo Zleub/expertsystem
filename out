@@ -1,0 +1,81 @@
+            --------    --------    --------    --------    --------    --------    --------    --------    --------    --------    
+            and         or          xor         imply       equivalent  +           |           ^           =>          <=>         
+            --------    --------    --------    --------    --------    --------    --------    --------    --------    --------    
+1, 1 :      1           1           0           1           1           1           1           0           1           1           
+1, 0 :      0           1           1           0           0           0           1           1           0           0           
+0, 1 :      0           1           1           1           0           0           1           1           1           0           
+0, 0 :      0           0           0           1           1           0           0           0           1           1           
+Not parsed rules
+[ '',
+  '',
+  'B => A',
+  'D + E => B',
+  'G + H => F',
+  'I + J => G',
+  'G => H',
+  'L + M => K',
+  'O + P => L + N',
+  'N => M',
+  '',
+  '',
+  '',
+  '=DEIJOP',
+  '',
+  '',
+  '',
+  '# ?AFK#P',
+  '?A',
+  '',
+  '',
+  '',
+  '#With =DEIJOP, AFKP is true.',
+  '#With =DEIJP, AFP is true, K is false.' ]
+[ '#', '', index: 0, input: '# ?AFK#P' ]
+[ '#', '', index: 0, input: '#With =DEIJOP, AFKP is true.' ]
+[ '#',
+  '',
+  index: 0,
+  input: '#With =DEIJP, AFP is true, K is false.' ]
+Post parsed rules
+Rule { type: '=>', left: 'B', right: 'A' }
+Rule {
+  type: '=>',
+  left: Rule { type: '+', left: 'D', right: 'E' },
+  right: 'B' }
+Rule {
+  type: '=>',
+  left: Rule { type: '+', left: 'G', right: 'H' },
+  right: 'F' }
+Rule {
+  type: '=>',
+  left: Rule { type: '+', left: 'I', right: 'J' },
+  right: 'G' }
+Rule { type: '=>', left: 'G', right: 'H' }
+Rule {
+  type: '=>',
+  left: Rule { type: '+', left: 'L', right: 'M' },
+  right: 'K' }
+Rule {
+  type: '=>',
+  left: Rule { type: '+', left: 'O', right: 'P' },
+  right: Rule { type: '+', left: 'L', right: 'N' } }
+Rule { type: '=>', left: 'N', right: 'M' }
+facts:  { B: false,
+  A: false,
+  D: true,
+  E: true,
+  G: false,
+  H: false,
+  F: false,
+  I: true,
+  J: true,
+  L: false,
+  M: false,
+  K: false,
+  O: true,
+  P: true,
+  N: false }
+queries:  [ 'A' ]
+---- ---- ---- ---- ---- ----
+search: A
+A:  B => A

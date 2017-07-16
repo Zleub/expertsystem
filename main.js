@@ -6,7 +6,7 @@
 //  sdddddddddddddddddddddddds   @Last modified by: adebray
 //  sdddddddddddddddddddddddds
 //  :ddddddddddhyyddddddddddd:   @Created: 2017-06-17T18:17:57+02:00
-//   odddddddd/`:-`sdddddddds    @Modified: 2017-07-16T00:53:06+02:00
+//   odddddddd/`:-`sdddddddds    @Modified: 2017-07-17T01:13:34+02:00
 //    +ddddddh`+dh +dddddddo
 //     -sdddddh///sdddddds-
 //       .+ydddddddddhs/.
@@ -23,68 +23,76 @@ class Rule {
 	}
 
 	contains(q) {
-		if (this.type == "=>")
-			if (this.left instanceof Rule)
-				this.left.contains(q)
-			else
-				return this.left == q
+		let b = false
+		if (this.right instanceof Rule)
+			b = b || this.right.contains(q)
 		else
-			if (this.right instanceof Rule)
-				this.right.contains(q)
-			else
-				return this.right == q || this.left == q
+			b = b || (this.right == q)
+		if (this.left instanceof Rule)
+			b = b || this.left.contains(q)
+		else
+			b = b || (this.left == q)
+		return b
 	}
 
-	solve(rules, facts, q) {
-		// if (q)
-		// 	console.log( q.toString().magenta )
-		console.log(`${q}: `, this.left, this.type, this.right )
-		if (this.right == q) {
-
-			if (!(this.left instanceof Rule)) {
-				return solve(rules, facts, this.left)
-			}
-			else {
-				console.log('test'.magenta)
-				return this.left.solve(rules, facts)
-			}
+	do(rules, facts, queries) {
+		if (!(this.left instanceof Rule) && !(this.right instanceof Rule)) {
+			log('!(this.left instanceof Rule) && !(this.right instanceof Rule)')
+			let a = solve(rules, facts, queries.concat([this.left]))
+			let b = solve(rules, facts, queries.concat([this.right]))
+			return tables[this.type](a, b)
+		}
+		if ((this.left instanceof Rule) && (this.right instanceof Rule)) {
+			log('(this.left instanceof Rule) && (this.right instanceof Rule)')
+			let a = this.left.solve(rules, facts, queries)
+			let b = this.right.solve(rules, facts, queries)
+			return tables[this.type](a, b)
+		}
+		else if (this.left instanceof Rule) {
+			log('this.left instanceof Rule')
+		}
+		else if (this.right instanceof Rule) {
+			log('this.right instanceof Rule')
 
 		}
-		else if ( this.right instanceof Rule && this.right.contains(q) ) {
-			console.log('composite right')
-			this.right.solve(rules, facts)
-		}
-		else if (q == undefined && typeof this.left == "string" && typeof this.right == "string") {
-			// let a, b
-			// if (this.left != q)
-				let a = solve(rules, facts, this.left)
-			let b = solve(rules, facts, this.right)
+	}
 
-			if (a == undefined && b == undefined) {
-				console.log('->', tables[this.type]( facts[this.left], facts[this.right] ))
-				return tables[this.type]( facts[this.left], facts[this.right] )
+	solve(rules, facts, queries) {
+		let q = queries[queries.length - 1]
+		if (this.contains(q))
+		{
+			if (this.right == q) {
+				if (this.left instanceof Rule) {
+					log('this.left instanceof Rule')
+					return this.left.do(rules.filter( e => e != this), facts, queries)
+				}
+				else {
+					log('!this.left instanceof Rule')
+					return solve(rules.filter( e => e != this), facts, queries.concat([this.left]))
+				}
 			}
-			console.log(a, b)
-			// else {
-			// 	return a && b
-			// }
+			else if (this.left instanceof Rule) {
+				log('this.left instanceof Rule')
+				return this.left.do(rules.filter(e => e != this), facts, queries)
+			}
+			else if (this.right instanceof Rule) {
+				log('!this.right instanceof Rule')
+				let b = this.right.do(rules.filter( e => e != this), facts, queries)
+				log(this, b)
+				return b
+			}
 		}
-		// console.log(typeof this.left == "string", typeof this.right == "string")
-		// else if (this.right == q && typeof this.left == "string" && typeof this.right == "string") {
-		// 	console.log("->", tables[this.type]( facts[this.left], facts[this.right] ))
-		// 	// return tables[this.type]( facts[this.left], facts[this.right] )
-		// }
-		// else {
-		// 	return this.do(facts)
-		// }
 	}
 }
 
-let solve = (rules, facts, query) => {
+let solve = (rules, facts, queries) => {
+	let query = queries[ queries.length - 1]
 	console.log(`search: ${query}`.cyan)
 	let res = rules.reduce( (p, e) => {
-		if (!p)
-			return e.solve(rules, facts, query)
+		if (!p) {
+			console.log(e)
+			return e.solve(rules, facts, queries)
+		}
 		else
 			return p
 	}, undefined )
@@ -92,8 +100,10 @@ let solve = (rules, facts, query) => {
 		console.log(`${query} true`)
 	if (res == false)
 		 console.log(`${query} false`)
-	if (res == undefined)
-		 console.log(`${query} undefined`)
+	if (res == undefined) {
+		console.log(`${query} undefined ${facts[query]}`)
+		return facts[query]
+	}
 	return res
 }
 
@@ -174,7 +184,10 @@ if (opt['--debug'] == true) {
 	})
 }
 
-let log = console.log
+let log = (...args) => {
+	if (opt['--debug'] == true)
+		console.log.apply(null, args)
+}
 let prettylog = e => console.log(JSON.stringify(e, null, "  "))
 
 let ops = [
@@ -251,7 +264,6 @@ else {
 			if (e.indexOf("#") == -1)
 				return e.trim()
 			let r = e.match(/([^#]*)#/)
-			console.log(r)
 			return (r == null) ? null : r[1].trim()
 		})
 		.filter( e => e != null)
@@ -264,9 +276,11 @@ else {
 			return e
 		})
 		.map( e => {
-			let r = e.match(/=(\w+)/)
+			let r = e.match(/=(\w*)$/)
 			if (r) {
-				r[1].match(/\w/g).forEach( e => facts[e] = true)
+				if (r[1]) {
+					r[1].match(/\w/g).forEach( e => facts[e] = true)
+				}
 				return null
 			}
 			return e
@@ -293,8 +307,10 @@ else {
 
 		console.log( queries.reduce( (p, q) => {
 			console.log('---- ---- ---- ---- ---- ----')
-			p[q] = solve(rules, facts, q)
+			p[q] = solve(rules, facts, [q])
 			return p
 		}, {}) )
 	})
 }
+
+module.exports = tables
