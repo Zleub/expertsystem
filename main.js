@@ -6,7 +6,7 @@
 //  sdddddddddddddddddddddddds   @Last modified by: adebray
 //  sdddddddddddddddddddddddds
 //  :ddddddddddhyyddddddddddd:   @Created: 2017-06-17T18:17:57+02:00
-//   odddddddd/`:-`sdddddddds    @Modified: 2017-07-17T01:13:34+02:00
+//   odddddddd/`:-`sdddddddds    @Modified: 2017-07-17T16:12:30+02:00
 //    +ddddddh`+dh +dddddddo
 //     -sdddddh///sdddddds-
 //       .+ydddddddddhs/.
@@ -37,46 +37,57 @@ class Rule {
 
 	do(rules, facts, queries) {
 		if (!(this.left instanceof Rule) && !(this.right instanceof Rule)) {
-			log('!(this.left instanceof Rule) && !(this.right instanceof Rule)')
+			log('do: !(this.left instanceof Rule) && !(this.right instanceof Rule)')
 			let a = solve(rules, facts, queries.concat([this.left]))
 			let b = solve(rules, facts, queries.concat([this.right]))
-			return tables[this.type](a, b)
+			let r = tables[this.type](a, b)
+			console.log(r)
+			return r
 		}
 		if ((this.left instanceof Rule) && (this.right instanceof Rule)) {
-			log('(this.left instanceof Rule) && (this.right instanceof Rule)')
+			log('do: (this.left instanceof Rule) && (this.right instanceof Rule)')
 			let a = this.left.solve(rules, facts, queries)
 			let b = this.right.solve(rules, facts, queries)
 			return tables[this.type](a, b)
 		}
-		else if (this.left instanceof Rule) {
-			log('this.left instanceof Rule')
+		else if (this.left instanceof Rule && !(this.right instanceof Rule)) {
+			log('do: this.left instanceof Rule')
+			let a = solve(rules.filter( e => e != this), facts, queries.concat([this.right]))
+			let b = this.left.do(rules.filter(e => e != this), facts, queries)
+			return tables[this.type](a, b)
 		}
-		else if (this.right instanceof Rule) {
-			log('this.right instanceof Rule')
-
+		else if (this.right instanceof Rule && !(this.left instanceof Rule)) {
+			log('do: this.right instanceof Rule')
+			let a = this.right.do(rules.filter(e => e != this), facts, queries)
+			let b = solve(rules.filter(e => e != this), facts, queries.concat([this.left]))
+			return tables[this.type](a, b)
 		}
 	}
 
 	solve(rules, facts, queries) {
 		let q = queries[queries.length - 1]
+		log(q, '-->', this)
 		if (this.contains(q))
 		{
 			if (this.right == q) {
 				if (this.left instanceof Rule) {
-					log('this.left instanceof Rule')
-					return this.left.do(rules.filter( e => e != this), facts, queries)
+					log('solve: this.left instanceof Rule')
+					return this.do(rules.filter( e => e != this), facts, queries)
+					// let r = this.left.do(rules.filter( e => e != this), facts, queries)
+					// console.log(r)
+					// return r
 				}
 				else {
-					log('!this.left instanceof Rule')
+					log('solve: !this.left instanceof Rule')
 					return solve(rules.filter( e => e != this), facts, queries.concat([this.left]))
 				}
 			}
 			else if (this.left instanceof Rule) {
-				log('this.left instanceof Rule')
+				log('solve: this.left instanceof Rule')
 				return this.left.do(rules.filter(e => e != this), facts, queries)
 			}
 			else if (this.right instanceof Rule) {
-				log('!this.right instanceof Rule')
+				log('solve: this.right instanceof Rule')
 				let b = this.right.do(rules.filter( e => e != this), facts, queries)
 				log(this, b)
 				return b
@@ -87,24 +98,31 @@ class Rule {
 
 let solve = (rules, facts, queries) => {
 	let query = queries[ queries.length - 1]
+	let negation = false
+	let r = query.match(/!(\w)/)
+	if ((r)) {
+		negation = true
+		query = r[1]
+	}
+
+
 	console.log(`search: ${query}`.cyan)
 	let res = rules.reduce( (p, e) => {
 		if (!p) {
-			console.log(e)
 			return e.solve(rules, facts, queries)
 		}
 		else
 			return p
 	}, undefined )
 	if (res == true)
-		console.log(`${query} true`)
+		console.log(`SOLVE: ${query} true`)
 	if (res == false)
-		 console.log(`${query} false`)
+		 console.log(`SOLVE: ${query} false`)
 	if (res == undefined) {
-		console.log(`${query} undefined ${facts[query]}`)
-		return facts[query]
+		console.log(`SOLVE: ${query} undefined ${facts[query]}`)
+		return (negation ? !facts[query] : facts[query])
 	}
-	return res
+	return (negation ? !res : res)
 }
 
 let opt = {
