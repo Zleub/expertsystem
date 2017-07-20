@@ -6,7 +6,7 @@
 //  sdddddddddddddddddddddddds   @Last modified by: adebray
 //  sdddddddddddddddddddddddds
 //  :ddddddddddhyyddddddddddd:   @Created: 2017-06-17T18:17:57+02:00
-//   odddddddd/`:-`sdddddddds    @Modified: 2017-07-17T16:12:30+02:00
+//   odddddddd/`:-`sdddddddds    @Modified: 2017-07-20T22:43:05+02:00
 //    +ddddddh`+dh +dddddddo
 //     -sdddddh///sdddddds-
 //       .+ydddddddddhs/.
@@ -126,7 +126,8 @@ let solve = (rules, facts, queries) => {
 }
 
 let opt = {
-	'--debug': 'Toggle debugging.'
+	'--debug': 'Toggle debugging.',
+	'--interactive': 'Toggle interactive facts definition.'
 }
 let _usage = Object.keys(opt).reduce( (p, k) => {
 	p[k] = opt[k]
@@ -136,6 +137,10 @@ let _usage = Object.keys(opt).reduce( (p, k) => {
 process.argv.forEach((e, i) => {
 	if (e == '--debug') {
 		opt['--debug'] = true
+		process.argv.splice(i, 1)
+	}
+	if (e == '--interactive') {
+		opt['--interactive'] = true
 		process.argv.splice(i, 1)
 	}
 })
@@ -296,6 +301,7 @@ else {
 		.map( e => {
 			let r = e.match(/=(\w*)$/)
 			if (r) {
+				opt['--interactive'] = _usage['--interactive']
 				if (r[1]) {
 					r[1].match(/\w/g).forEach( e => facts[e] = true)
 				}
@@ -321,6 +327,28 @@ else {
 			rules.forEach( e => log(e))
 			log("facts: ", facts)
 			log("queries: ", queries)
+		}
+
+		if (typeof opt['--interactive'] == 'string' || opt['--interactive'] === true) {
+			const readline = require('readline');
+
+			const rl = readline.createInterface({
+				input: process.stdin,
+				output: process.stdout
+			});
+
+			rl.question('Define your facts ', (answer) => {
+				answer.match(/\w/g).forEach( e => facts[e] = true)
+				rl.close();
+
+				console.log( queries.reduce( (p, q) => {
+					console.log('---- ---- ---- ---- ---- ----')
+					p[q] = solve(rules, facts, [q])
+					return p
+				}, {}) )
+			});
+
+			return
 		}
 
 		console.log( queries.reduce( (p, q) => {
